@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Last Call Calculator</title>
+<meta name="description" content="Score the drink you're eyeing, rate what you've had, and get a pick for your next round.">
+<meta name="theme-color" content="#1c1511" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3eee6" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Last Call">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/app.css">
+<style>.dealrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:end}s.was{color:var(--muted);font-weight:400}</style>
+</head>
+<body>
+
+<!-- ============ SIGN IN ============ -->
+<main id="auth" class="wrap" hidden>
+  <header class="hero">
+    <h1>Last Call<br>Calculator</h1>
+    <p class="sub">Score the drink you're eyeing, rate what you've had, and get a pick for your next round.</p>
+  </header>
+  <form id="authForm" class="card form" novalidate>
+    <h2 id="authTitle">Sign in</h2>
+    <div class="field"><label class="label" for="authName">Name</label>
+      <input type="text" id="authName" autocomplete="username" autocapitalize="words" maxlength="24" required></div>
+    <div class="field"><label class="label" for="authPin">4-digit PIN</label>
+      <input type="password" id="authPin" inputmode="numeric" pattern="\d{4}" maxlength="4" autocomplete="current-password" required></div>
+    <p class="err" id="authErr" role="alert" hidden></p>
+    <button class="btn primary big" type="submit" id="authGo">Sign in</button>
+    <button class="btn ghost" type="button" id="authSwitch">New here? Create a name</button>
+    <p class="hint">No email needed. Your ratings and history are saved to your name. The PIN keeps friends out of each other's ratings. It isn't bank-grade security, so don't reuse an important PIN.</p>
+  </form>
+</main>
+
+<!-- ============ APP ============ -->
+<div id="app" hidden>
+  <nav class="topbar" aria-label="Main">
+    <div class="topbar-in">
+      <div class="brand">Last Call</div>
+      <div class="sync" id="sync" aria-live="polite"></div>
+      <div class="tabs" role="tablist">
+        <button role="tab" class="tab" data-view="score" aria-selected="true">Score</button>
+        <button role="tab" class="tab" data-view="ratings" aria-selected="false">Ratings</button>
+        <button role="tab" class="tab" data-view="history" aria-selected="false">History</button>
+        <button role="tab" class="tab" data-view="settings" aria-selected="false" aria-label="Settings">Me</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ----- SCORE ----- -->
+  <main class="wrap view" id="view-score">
+    <section aria-labelledby="scan-h">
+      <h2 id="scan-h">Scan the menu</h2>
+      <div class="card scan" id="scanCard">
+        <div id="scanReady" hidden>
+          <label class="btn primary big block" for="menuPhoto" id="scanLabel">Take a photo of the menu</label>
+          <input type="file" id="menuPhoto" accept="image/jpeg,image/png,image/webp,image/gif,image/*" capture="environment" class="vh">
+        </div>
+        <p class="hint" id="scanStatus"></p>
+        <div class="btnrow" id="scanCtl" hidden><button class="btn" type="button" id="scanStop">Stop</button></div>
+      </div>
+      <ul class="menu" id="menuList"></ul>
+      <button class="btn ghost" type="button" id="menuClear" hidden>Clear scanned menu</button>
+    </section>
+
+    <section aria-labelledby="drink-h" id="drinkSec">
+      <h2 id="drink-h">The drink</h2>
+      <div class="field">
+        <label class="label" for="libSearch">Find a cocktail</label>
+        <input type="search" id="libSearch" placeholder="Margarita, Old Fashioned, mule…" autocomplete="off">
+        <ul class="lib" id="libList"></ul>
+      </div>
+      <div class="label">Or pick a type</div>
+      <div class="chips" id="cats" role="group" aria-label="Drink type"></div>
+
+      <div class="card form grid3">
+        <div class="field full"><label class="label" for="fName">Name</label><input type="text" id="fName" placeholder="e.g. House Old Fashioned" maxlength="80"></div>
+        <div class="field"><label class="label" for="fPrice">Price $</label><input type="number" id="fPrice" min="0" step="0.25" inputmode="decimal"></div>
+        <div class="field span2"><label class="label" for="fCat">Type</label><select id="fCat"></select></div>
+        <div class="full dealrow">
+          <div class="field"><label class="label" for="fDealType">Deal</label><select id="fDealType"><option value="">No deal</option><option value="pct">% off</option><option value="off">$ off</option><option value="price">Deal price</option></select></div>
+          <div class="field" id="dealValWrap" hidden><label class="label" for="fDealVal" id="dealValLabel">Amount</label><input type="number" id="fDealVal" min="0" step="0.25" inputmode="decimal"></div>
+          <div class="full chips" id="dealQuick" role="group" aria-label="Quick deals"><button type="button" class="chip" data-quick="50">50% off</button><button type="button" class="chip" data-quick="25">25% off</button></div>
+          <p class="full hint" id="dealLine"></p>
+        </div>
+
+        <div class="full seg" role="group" aria-label="How to enter strength">
+          <button type="button" class="segbtn" data-mode="simple">Size &amp; ABV</button>
+          <button type="button" class="segbtn" data-mode="parts">By ingredients</button>
+        </div>
+        <div class="full grid2" id="simpleBox">
+          <div class="field"><label class="label" for="fOz">Size oz</label><input type="number" id="fOz" min="0" step="0.25" inputmode="decimal"></div>
+          <div class="field"><label class="label" for="fAbv">ABV %</label><input type="number" id="fAbv" min="0" max="100" step="0.1" inputmode="decimal"></div>
+          <p class="full hint" id="sizeHint"></p>
+        </div>
+        <div class="full" id="partsBox" hidden>
+          <ul class="parts" id="partsList"></ul>
+          <div class="btnrow"><button class="btn" type="button" id="addPart">+ Add ingredient</button></div>
+          <p class="hint">Only the alcohol counts. Juice, syrup, soda and bitters don't change the math.</p>
+        </div>
+        <p class="full alc" id="alcLine"></p>
+
+        <div class="field full">
+          <label class="label" for="fEnj">How much do you want it?</label>
+          <div class="enjrow"><input type="range" id="fEnj" min="1" max="10" step="0.5"><output id="enjOut"></output></div>
+          <p class="hint" id="enjHint"></p>
+        </div>
+        <label class="full switch"><input type="checkbox" id="fRare"> Rare or hard to find (×1.2)</label>
+      </div>
+    </section>
+
+    <section aria-live="polite">
+      <div class="verdict">
+        <div class="num" id="vNum">0.00</div>
+        <div class="word" id="vWord">—</div>
+        <div class="why" id="vWhy"></div>
+        <div class="gauge"><i id="vGauge"></i></div>
+      </div>
+      <div class="factors">
+        <div class="factor"><b id="xEnj">–</b><span>Enjoyment</span></div>
+        <div class="factor"><b id="xFit">–</b><span>Fit</span></div>
+        <div class="factor"><b id="xStr">–</b><span>Strength</span></div>
+        <div class="factor"><b id="xPer">–</b><span>$ / std</span></div>
+      </div>
+      <p class="hint">score = enjoyment × fit × √standard drinks ÷ price. One standard drink is 0.6 oz of alcohol.</p>
+      <button class="btn primary big" type="button" id="orderBtn">I'm ordering this</button>
+    </section>
+
+    <section aria-labelledby="scene-h">
+      <h2 id="scene-h">The scene</h2>
+      <div class="field"><label class="label" for="barName">Bar name (optional)</label><input type="text" id="barName" maxlength="60" placeholder="Saved with tonight's history"></div>
+      <div class="label">Kind of place</div>
+      <div class="chips" id="bars"></div>
+      <div class="label">What's going on</div>
+      <div class="chips" id="ctx"></div>
+      <div class="card plan">
+        <div class="field">
+          <span class="label">Plan for tonight</span>
+          <div class="stepper"><button type="button" id="capDown" aria-label="Lower plan">−</button><output id="capOut"></output><button type="button" id="capUp" aria-label="Raise plan">+</button></div>
+        </div>
+        <div class="field">
+          <span class="label">Had so far</span>
+          <div class="stepper"><output id="hadOut"></output><span class="hint">std drinks</span></div>
+        </div>
+        <div class="full meter" id="meter"><i></i></div>
+        <p class="full hint" id="capHint"></p>
+        <label class="full switch"><input type="checkbox" id="capOn"> Score a drink zero if it would put me past my plan</label>
+      </div>
+    </section>
+
+    <section aria-labelledby="fc-h">
+      <h2 id="fc-h">The forecast</h2>
+      <div class="forecast" id="forecast"></div>
+    </section>
+
+    <section aria-labelledby="log-h">
+      <h2 id="log-h">Tonight's tab</h2>
+      <ul class="log" id="log"></ul>
+      <div class="btnrow"><button class="btn" type="button" id="newNight">Start a new night</button></div>
+      <p class="hint" id="newConfirm" hidden>Tap again to close out tonight. It moves to History.</p>
+    </section>
+  </main>
+
+  <!-- ----- RATINGS ----- -->
+  <main class="wrap view" id="view-ratings" hidden>
+    <header>
+      <h2 class="h1ish">Your ratings</h2>
+      <p class="sub">Tap a number to rate. Tap it again to clear. A drink you've rated by name uses its own score; anything else falls back to your rating for its type.</p>
+    </header>
+    <div class="seg" role="group" aria-label="Ratings view">
+      <button type="button" class="segbtn" data-rview="drinks" aria-pressed="true">Drinks</button>
+      <button type="button" class="segbtn" data-rview="types" aria-pressed="false">Types</button>
+    </div>
+    <div id="rDrinks">
+      <div class="field"><label class="label" for="rSearch">Search</label><input type="search" id="rSearch" placeholder="Search drinks" autocomplete="off"></div>
+      <div class="chips" id="rFilter" role="group" aria-label="Filter">
+        <button type="button" class="chip" data-rf="all" aria-pressed="true">All</button>
+        <button type="button" class="chip" data-rf="rated" aria-pressed="false">Rated</button>
+        <button type="button" class="chip" data-rf="unrated" aria-pressed="false">Not rated</button>
+      </div>
+      <ul class="rlist" id="rList"></ul>
+      <form class="card form grid3" id="addRated">
+        <h3 class="full">Add a drink to rate</h3>
+        <div class="field full"><label class="label" for="arName">Name</label><input type="text" id="arName" maxlength="80" placeholder="e.g. Blanton's, Shiner Bock" required></div>
+        <div class="field span2"><label class="label" for="arCat">Type</label><select id="arCat"></select></div>
+        <div class="field"><label class="label" for="arR">Rating</label><select id="arR"></select></div>
+        <div class="full"><button class="btn primary" type="submit">Add rating</button></div>
+      </form>
+    </div>
+    <div id="rTypes" hidden>
+      <div class="card prefs" id="prefs"></div>
+    </div>
+  </main>
+
+  <!-- ----- HISTORY ----- -->
+  <main class="wrap view" id="view-history" hidden>
+    <header><h2 class="h1ish">History</h2></header>
+    <div class="stats" id="stats"></div>
+    <div id="nights"></div>
+  </main>
+
+  <!-- ----- SETTINGS ----- -->
+  <main class="wrap view" id="view-settings" hidden>
+    <header><h2 class="h1ish" id="meName">You</h2></header>
+    <section class="card form">
+      <h3>Menu scanning</h3>
+      <p class="hint">Scanning uses your own Anthropic API key, so you pay Anthropic directly, usually a few cents per scan. The key stays on this device and goes straight to Anthropic. It is never saved to your account or sent to this app's server.</p>
+      <p class="hint">Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> under API Keys. You'll need to add credit to your Anthropic account first.</p>
+      <div class="field"><label class="label" for="apiKey">Anthropic API key</label>
+        <input type="password" id="apiKey" autocomplete="off" spellcheck="false" placeholder="sk-ant-…"></div>
+      <div class="btnrow"><button class="btn primary" type="button" id="keySave">Save key on this device</button><button class="btn ghost" type="button" id="keyClear">Remove key</button></div>
+      <p class="hint" id="keyStatus"></p>
+    </section>
+    <section class="card form">
+      <h3>Account</h3>
+      <p class="hint">Your ratings and history sync to your name, so you can sign in on any phone.</p>
+      <div class="btnrow"><button class="btn" type="button" id="signOut">Sign out</button></div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="/cocktails.js"></script>
+<script src="/a1.js"></script>
+<script src="/deal.js"></script>
+<script src="/a2.js"></script>
+<script src="/a3.js"></script>
+<script src="/a3b.js"></script>
+<script src="/a4.js"></script>
+</body>
+</html>

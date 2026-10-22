@@ -1,0 +1,9 @@
+{
+  "name": "last-call-calculator",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "24.x" },
+  "dependencies": {
+    "@vercel/blob": "^2.3.0"
+  }
+}
