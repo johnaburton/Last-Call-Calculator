@@ -83,6 +83,9 @@
         <div id="scanReady" hidden>
           <label class="btn primary big block" for="menuPhoto" id="scanLabel">Take a photo of the menu</label>
           <input type="file" id="menuPhoto" accept="image/jpeg,image/png,image/webp,image/gif,image/*" capture="environment" class="vh">
+          <label class="btn block" for="menuPick" id="pickLabel" style="margin-top:8px">Use a photo from your phone</label>
+          <input type="file" id="menuPick" accept="image/*" class="vh">
+          <p class="hint" style="margin-top:8px">Camera showing a black screen? Take the picture with your camera app, then use "Use a photo from your phone".</p>
         </div>
         <p class="hint" id="scanStatus"></p>
         <div class="btnrow" id="scanCtl" hidden><button class="btn" type="button" id="scanStop">Stop</button></div>

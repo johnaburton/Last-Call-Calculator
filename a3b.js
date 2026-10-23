@@ -102,6 +102,6 @@ async function scanMenu(file){
     setScanBusy(false, e.name==="AbortError" ? "Stopped." : (e.message || "Something went wrong reading the menu."));
   }finally{ scanAbort = null }
 }
-$("menuPhoto").addEventListener("change", e=>{ const f = e.target.files?.[0]; e.target.value = ""; if(f) scanMenu(f) });
+["menuPhoto","menuPick"].forEach(id=>$(id).addEventListener("change", e=>{ const f = e.target.files?.[0]; e.target.value = ""; if(f) scanMenu(f) }));
 $("scanStop").onclick = ()=> scanAbort?.abort();
 

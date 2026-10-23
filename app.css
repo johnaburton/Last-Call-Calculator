@@ -87,8 +87,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .enjrow output{font-family:var(--mono);text-align:right;font-size:1.05rem}
 .vh{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 .scan{display:flex;flex-direction:column;gap:10px}
-.scan:has(#menuPhoto:focus-visible) #scanLabel{outline:2px solid var(--accent);outline-offset:2px}
-.scan.busy #scanLabel{opacity:.5;pointer-events:none}
+.scan:has(#menuPhoto:focus-visible) #scanLabel,.scan:has(#menuPick:focus-visible) #pickLabel{outline:2px solid var(--accent);outline-offset:2px}
+.scan.busy #scanLabel,.scan.busy #pickLabel{opacity:.5;pointer-events:none}
 .menu{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 
 /* verdict */
