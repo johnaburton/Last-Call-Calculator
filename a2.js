@@ -51,8 +51,8 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showView(t.dataset.vi
 const tonight = () => S.history.filter(h=>h.night===S.night.id);
 const had = () => Math.round(tonight().reduce((a,l)=>a+l.sd,0)*10)/10;
 function fitFor(cat){
-  let f = 1 + (BAR_FIT[S.night.bar]?.[cat]||0);
-  for(const k in S.night.ctx) if(S.night.ctx[k]) f += CTX[k].fit[cat]||0;
+  const t = BAR_FIT[S.night.bar] || {};
+  let f = 1 + (t[cat] ?? t[FAM[cat]] ?? 0);
   return Math.min(1.5, Math.max(.5, f));
 }
 function enjoymentFor(d){
@@ -79,13 +79,13 @@ function verdictFor(sc, over){
 
 /* ================= score view: drink entry ================= */
 const ingOptions = sel => Object.entries(ING).map(([k,v])=>`<option value="${k}" ${k===sel?"selected":""}>${esc(v.name)} (${v.abv}%)</option>`).join("");
-const catOptions = sel => Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${k===sel?"selected":""}>${esc(v.name)}</option>`).join("");
 $("fCat").innerHTML = catOptions(); $("arCat").innerHTML = catOptions("whiskey");
 $("arR").innerHTML = [10,9.5,9,8.5,8,7.5,7,6.5,6,5.5,5,4,3,2,1].map(n=>`<option value="${n}" ${n===8?"selected":""}>${n}</option>`).join("");
 
 function renderDrink(){
   const c = S.cur;
-  $("cats").innerHTML = Object.entries(CATS).map(([k,v])=>`<button type="button" class="chip" data-cat="${k}" aria-pressed="false">${esc(v.name)}</button>`).join("");
+  $("cats").innerHTML = Object.entries(GROUPS).map(([g,gn])=>`<div class="catgrp"><span class="catg">${gn}</span><div class="chips">`+
+    Object.entries(CATS).filter(([,v])=>v.grp===g).map(([k,v])=>`<button type="button" class="chip" data-cat="${k}" aria-pressed="false">${esc(v.name)}</button>`).join("")+`</div></div>`).join("");
   $("fName").value = c.name||""; $("fPrice").value = c.price||""; $("fCat").value = c.cat;
   $("fDealType").value = c.deal?.type || ""; $("fDealVal").value = c.deal?.type ? c.deal.value : "";
   $("fOz").value = c.oz||""; $("fAbv").value = c.abv||""; $("fRare").checked = !!c.rare;
@@ -201,7 +201,7 @@ document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{
   if(m===c.mode) return;
   if(m==="parts" && !(c.parts?.length)){
     // seed one spirit that matches current strength
-    c.parts = [[c.cat==="wine"?"wine":c.cat==="light"||c.cat==="craft"||c.cat==="seltzer"?"beer":"bourbon", c.oz||1.5]];
+    c.parts = [[c.cat==="wine"?"wine":isBeer(c.cat)||c.cat==="seltzer"?"beer":"bourbon", c.oz||1.5]];
   }
   if(m==="simple" && c.mode==="parts"){
     const oz = c.parts.reduce((x,[,o])=>x+(+o||0),0);

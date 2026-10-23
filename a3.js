@@ -1,7 +1,6 @@
 /* ================= scene & plan ================= */
 function renderScene(){
   $("bars").innerHTML = Object.entries(BARS).map(([k,v])=>`<button type="button" class="chip" data-bar="${k}" aria-pressed="${S.night.bar===k}">${v}</button>`).join("");
-  $("ctx").innerHTML = Object.entries(CTX).map(([k,v])=>`<button type="button" class="chip" data-ctx="${k}" aria-pressed="${!!S.night.ctx[k]}">${v.label}</button>`).join("");
   if(document.activeElement!==$("barName")) $("barName").value = S.night.barName||"";
   const h = had();
   $("capOut").textContent = S.cap; $("hadOut").textContent = fmt(h,1); $("capOn").checked = S.capOn;
@@ -11,7 +10,6 @@ function renderScene(){
   $("capHint").textContent = left > 0 ? `${fmt(left,1)} standard drinks left in your plan.` : `You've hit your plan for tonight.`;
 }
 $("bars").addEventListener("click", e=>{ const b=e.target.closest("[data-bar]"); if(b){ S.night.bar=b.dataset.bar; renderLive() } });
-$("ctx").addEventListener("click", e=>{ const b=e.target.closest("[data-ctx]"); if(b){ S.night.ctx[b.dataset.ctx]=!S.night.ctx[b.dataset.ctx]; renderLive() } });
 $("barName").addEventListener("input", e=>{ S.night.barName = e.target.value; save() });
 $("capUp").onclick = ()=>{ S.cap++; renderLive() };
 $("capDown").onclick = ()=>{ S.cap = Math.max(1,S.cap-1); renderLive() };
@@ -148,7 +146,7 @@ let armed = false;
 $("newNight").onclick = ()=>{
   if(!armed){ armed = true; $("newConfirm").hidden = false; setTimeout(()=>{armed=false;$("newConfirm").hidden=true},4000); return }
   armed = false; $("newConfirm").hidden = true;
-  S.night = {id:Date.now(), bar:"none", barName:"", ctx:{}};
+  S.night = {id:Date.now(), bar:"none", barName:""};
   ratingFor = null; renderLive(); toast("New night started. Last night is in History.");
 };
 

@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/app.css">
-<style>.dealrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:end}s.was{color:var(--muted);font-weight:400}</style>
+<style>.dealrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:end}s.was{color:var(--muted);font-weight:400}#cats{display:flex;flex-direction:column;gap:10px;margin-bottom:4px}.catg{display:block;font-size:.72rem;color:var(--muted);margin-bottom:6px}.prefg{margin-top:8px;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.prefg:first-of-type{margin-top:0}</style>
 </head>
 <body>
 
@@ -57,6 +57,26 @@
 
   <!-- ----- SCORE ----- -->
   <main class="wrap view" id="view-score">
+    <section aria-labelledby="scene-h">
+      <h2 id="scene-h">The scene</h2>
+      <div class="field"><label class="label" for="barName">Bar name (optional)</label><input type="text" id="barName" maxlength="60" placeholder="Saved with tonight's history"></div>
+      <div class="label">Kind of place</div>
+      <div class="chips" id="bars"></div>
+      <div class="card plan">
+        <div class="field">
+          <span class="label">Plan for tonight</span>
+          <div class="stepper"><button type="button" id="capDown" aria-label="Lower plan">−</button><output id="capOut"></output><button type="button" id="capUp" aria-label="Raise plan">+</button></div>
+        </div>
+        <div class="field">
+          <span class="label">Had so far</span>
+          <div class="stepper"><output id="hadOut"></output><span class="hint">std drinks</span></div>
+        </div>
+        <div class="full meter" id="meter"><i></i></div>
+        <p class="full hint" id="capHint"></p>
+        <label class="full switch"><input type="checkbox" id="capOn"> Score a drink zero if it would put me past my plan</label>
+      </div>
+    </section>
+
     <section aria-labelledby="scan-h">
       <h2 id="scan-h">Scan the menu</h2>
       <div class="card scan" id="scanCard">
@@ -79,7 +99,7 @@
         <ul class="lib" id="libList"></ul>
       </div>
       <div class="label">Or pick a type</div>
-      <div class="chips" id="cats" role="group" aria-label="Drink type"></div>
+      <div id="cats" role="group" aria-label="Drink type"></div>
 
       <div class="card form grid3">
         <div class="field full"><label class="label" for="fName">Name</label><input type="text" id="fName" placeholder="e.g. House Old Fashioned" maxlength="80"></div>
@@ -132,28 +152,6 @@
       </div>
       <p class="hint">score = enjoyment × fit × √standard drinks ÷ price. One standard drink is 0.6 oz of alcohol.</p>
       <button class="btn primary big" type="button" id="orderBtn">I'm ordering this</button>
-    </section>
-
-    <section aria-labelledby="scene-h">
-      <h2 id="scene-h">The scene</h2>
-      <div class="field"><label class="label" for="barName">Bar name (optional)</label><input type="text" id="barName" maxlength="60" placeholder="Saved with tonight's history"></div>
-      <div class="label">Kind of place</div>
-      <div class="chips" id="bars"></div>
-      <div class="label">What's going on</div>
-      <div class="chips" id="ctx"></div>
-      <div class="card plan">
-        <div class="field">
-          <span class="label">Plan for tonight</span>
-          <div class="stepper"><button type="button" id="capDown" aria-label="Lower plan">−</button><output id="capOut"></output><button type="button" id="capUp" aria-label="Raise plan">+</button></div>
-        </div>
-        <div class="field">
-          <span class="label">Had so far</span>
-          <div class="stepper"><output id="hadOut"></output><span class="hint">std drinks</span></div>
-        </div>
-        <div class="full meter" id="meter"><i></i></div>
-        <p class="full hint" id="capHint"></p>
-        <label class="full switch"><input type="checkbox" id="capOn"> Score a drink zero if it would put me past my plan</label>
-      </div>
     </section>
 
     <section aria-labelledby="fc-h">

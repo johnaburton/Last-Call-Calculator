@@ -44,8 +44,9 @@ $("addRated").addEventListener("submit", e=>{
 });
 function renderPrefs(){
   $("prefs").innerHTML = `<p class="hint">Your usual enjoyment for each type, 1–10. Used for any drink you haven't rated by name. Rating drinks you order nudges these.</p>` +
-    Object.entries(CATS).map(([k,v])=>`<label class="pref" for="p_${k}"><span>${esc(v.name)}</span>
-    <input type="range" id="p_${k}" min="1" max="10" step="0.5" value="${S.prefs[k]}" data-pref="${k}"><output>${fmt(S.prefs[k],1)}</output></label>`).join("");
+    Object.entries(GROUPS).map(([g,gn])=>`<h3 class="prefg">${gn}</h3>`+
+    Object.entries(CATS).filter(([,v])=>v.grp===g).map(([k,v])=>`<label class="pref" for="p_${k}"><span>${esc(v.name)}</span>
+    <input type="range" id="p_${k}" min="1" max="10" step="0.5" value="${S.prefs[k]}" data-pref="${k}"><output>${fmt(S.prefs[k],1)}</output></label>`).join("")).join("");
 }
 $("prefs").addEventListener("input", e=>{
   const k = e.target.dataset.pref; if(!k) return;
