@@ -98,6 +98,7 @@ function startApp(){
   renderDrink(); renderScene(); renderScore(); renderForecast(); renderLog(); renderScanCard(); renderLib();
   setSync(dirty ? "Saving…" : "Saved");
   showView("score");
+  autoLocate();
 }
 (async function boot(){
   if(!TOKEN || !ME){ showAuth(); return }

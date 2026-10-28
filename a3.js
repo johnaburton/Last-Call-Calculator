@@ -1,19 +1,13 @@
-/* ================= scene & plan ================= */
+/* ================= scene ================= */
 function renderScene(){
   $("bars").innerHTML = Object.entries(BARS).map(([k,v])=>`<button type="button" class="chip" data-bar="${k}" aria-pressed="${S.night.bar===k}">${v}</button>`).join("");
   if(document.activeElement!==$("barName")) $("barName").value = S.night.barName||"";
-  const h = had();
-  $("capOut").textContent = S.cap; $("hadOut").textContent = fmt(h,1); $("capOn").checked = S.capOn;
-  $("meter").querySelector("i").style.width = Math.min(100, h/S.cap*100)+"%";
-  $("meter").classList.toggle("over", h >= S.cap);
-  const left = S.cap - h;
-  $("capHint").textContent = left > 0 ? `${fmt(left,1)} standard drinks left in your plan.` : `You've hit your plan for tonight.`;
+  if(typeof renderLoc==="function") renderLoc();
+  const h = had(), n = tonight().length;
+  $("hadLine").textContent = n ? `${n} drink${n===1?"":"s"} so far, ${fmt(h,1)} standard drink${h===1?"":"s"}.` : "";
 }
 $("bars").addEventListener("click", e=>{ const b=e.target.closest("[data-bar]"); if(b){ S.night.bar=b.dataset.bar; renderLive() } });
 $("barName").addEventListener("input", e=>{ S.night.barName = e.target.value; save() });
-$("capUp").onclick = ()=>{ S.cap++; renderLive() };
-$("capDown").onclick = ()=>{ S.cap = Math.max(1,S.cap-1); renderLive() };
-$("capOn").onchange = e=>{ S.capOn = e.target.checked; renderLive() };
 
 /* ================= ordering, rating ================= */
 let ratingFor = null; // history entry id being rated in tonight's tab
@@ -67,11 +61,11 @@ function candidates(){
 function forecast(){
   const log = tonight(), n = log.length;
   if(n < 2) return {locked:true, n};
-  const h = had(), left = S.cap - h;
+  const h = had();
   const hrs = Math.max((Date.now() - log[0].t)/36e5, 1), pace = h/hrs;
   const byCat = {}; log.forEach(l=>{ if(l.r) (byCat[l.cat] ||= []).push(l.r) });
   const lastTwo = log.slice(-2).map(l=>l.cat), streak = lastTwo[0]===lastTwo[1] ? lastTwo[0] : null;
-  const progress = Math.min(1, h/S.cap);
+  const progress = Math.min(1, h/5); // how far into the night, by standard drinks
   const list = candidates().map(c=>{
     const sd = stdOf(c.d), why = [];
     let e = c.e;
@@ -84,23 +78,21 @@ function forecast(){
     mod *= 1 - .25*Math.max(0, sd-1)*progress;
     if(progress>.5 && sd<=1.15) why.push("Lighter pour for later in the night");
     if(c.kind==="named") mod *= 1.05;
-    const sc = sd <= left+.05 && (c.d.price>0 || !exOn("price")) ? combine(e, fit, Math.sqrt(sd), c.d.price)*mod : 0;
+    const sc = (c.d.price>0 || !exOn("price")) ? combine(e, fit, Math.sqrt(sd), c.d.price)*mod : 0;
     if(!why.length) why.push(`Solid value at a typical $${c.d.price}`);
     return {...c, sc, why};
   }).filter(c=>c.sc>0).sort((a,b)=>b.sc-a.sc);
-  return {locked:false, n, h, left, pace, list};
+  return {locked:false, n, h, pace, list};
 }
 let fcList = [];
 function renderForecast(){
   const f = forecast(), box = $("forecast");
   box.classList.toggle("locked", f.locked);
-  if(f.locked){ box.innerHTML = `<p class="hint" style="font-size:.9rem">Log ${2-f.n} more drink${f.n===1?"":"s"} tonight to unlock a forecast. It weighs what you've rated well, the scene, your pace, and what's left in your plan.</p>`; return }
+  if(f.locked){ box.innerHTML = `<p class="hint" style="font-size:.9rem">Log ${2-f.n} more drink${f.n===1?"":"s"} tonight to unlock a forecast. It weighs what you've rated well, the scene and your pace.</p>`; return }
   let pace;
-  if(f.left <= .3) pace = `<div class="pace warn">You've reached your plan for tonight. Next round: water, or call it a great night.</div>`;
-  else if(f.pace > 1.5) pace = `<div class="pace warn">You're at about ${fmt(f.pace,1)} standard drinks an hour. Have a water before the next one.</div>`;
-  else pace = `<div class="pace">Pace: about ${fmt(f.pace,1)} standard drinks an hour, ${fmt(f.left,1)} left in your plan.</div>`;
-  if(f.left > .3 && !f.list.length) pace += `<p class="hint">Nothing typical fits in the ${fmt(f.left,1)} standard drinks left in your plan. A half pour, a light beer can or a water would.</p>`;
-  if(f.left <= .3 || !f.list.length){ box.innerHTML = pace; return }
+  if(f.pace > 1.5) pace = `<div class="pace warn">You're at about ${fmt(f.pace,1)} standard drinks an hour. Have a water before the next one.</div>`;
+  else pace = `<div class="pace">Pace: about ${fmt(f.pace,1)} standard drinks an hour.</div>`;
+  if(!f.list.length){ box.innerHTML = pace; return }
   fcList = f.list;
   const top = f.list[0], alts = f.list.slice(1,4);
   box.innerHTML = `<div class="label">Next round</div>

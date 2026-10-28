@@ -160,3 +160,12 @@ details.night .log{margin-top:10px}
   .picker button{font-size:.75rem}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* location */
+.loc{display:flex;flex-direction:column;gap:10px}
+.loc .q{font-weight:600}
+.places{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.place{width:100%;text-align:left;display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:10px 12px;font:500 .95rem var(--body);cursor:pointer}
+.place small{color:var(--muted);font-size:.8rem;white-space:nowrap}
+.place:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.loc .here{display:flex;justify-content:space-between;gap:10px;align-items:center}

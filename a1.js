@@ -40,7 +40,7 @@ const ING = window.INGREDIENTS, LIB = window.COCKTAILS;
 const freshState = () => ({
   v:2, prefs:{...DEFAULT_PREFS}, ratings:{}, history:[],
   night:{id:Date.now(), bar:"none", barName:""},
-  cap:4, capOn:true, menu:[],
+  menu:[],
   cur:fromLibrary(LIB.find(c=>c.name==="Old Fashioned"))
 });
 

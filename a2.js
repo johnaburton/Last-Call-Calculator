@@ -63,14 +63,12 @@ function enjoymentFor(d){
 }
 function score(d){
   const sd = stdOf(d), fit = fitFor(d.cat), {e} = enjoymentFor(d);
-  const over = had() + sd > S.cap + 0.05;
-  const str = (S.capOn && over) ? 0 : Math.sqrt(sd);
+  const str = Math.sqrt(sd);
   const price = effPrice(d);
   const sc = (price>0 || !exOn("price")) && sd>0 ? combine(e, fit, str, price)*(d.rare?1.2:1) : 0;
-  return {sd, fit, e, str, over, sc, price, per: sd>0 ? price/sd : 0};
+  return {sd, fit, e, str, sc, price, per: sd>0 ? price/sd : 0};
 }
-function verdictFor(sc, over){
-  if(over && S.capOn) return ["Past your plan","This one would take you over what you planned for tonight."];
+function verdictFor(sc){
   if(sc >= 1.0) return ["Order it","Great value for how much you'll enjoy it."];
   if(sc >= 0.7) return ["Good call","Worth the price in this setting."];
   if(sc >= 0.45) return ["Fair","Fine, but something else might suit the moment better."];
@@ -120,7 +118,7 @@ function renderEnj(){
     `Your usual for ${CATS[c.cat].name}. Rate this drink by name to make it specific.`;
 }
 function renderScore(){
-  const r = score(S.cur), [word, why] = verdictFor(r.sc, r.over);
+  const r = score(S.cur), [word, why] = verdictFor(r.sc);
   $("vNum").textContent = fmt(r.sc); $("vWord").textContent = word; $("vWhy").textContent = why;
   $("vGauge").style.width = Math.min(100, r.sc/1.5*100)+"%";
   $("xEnj").textContent = fmt(r.e,1); $("xFit").textContent = "×"+fmt(r.fit);

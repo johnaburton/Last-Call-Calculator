@@ -59,22 +59,13 @@
   <main class="wrap view" id="view-score">
     <section aria-labelledby="scene-h">
       <h2 id="scene-h">The scene</h2>
+      <div class="card loc" id="locCard">
+        <button class="btn block" type="button" id="locBtn">Find where I am</button>
+        <div id="locBox" aria-live="polite"></div>
+      </div>
       <div class="field"><label class="label" for="barName">Bar name (optional)</label><input type="text" id="barName" maxlength="60" placeholder="Saved with tonight's history"></div>
       <div class="label">Kind of place</div>
       <div class="chips" id="bars"></div>
-      <div class="card plan">
-        <div class="field">
-          <span class="label">Plan for tonight</span>
-          <div class="stepper"><button type="button" id="capDown" aria-label="Lower plan">−</button><output id="capOut"></output><button type="button" id="capUp" aria-label="Raise plan">+</button></div>
-        </div>
-        <div class="field">
-          <span class="label">Had so far</span>
-          <div class="stepper"><output id="hadOut"></output><span class="hint">std drinks</span></div>
-        </div>
-        <div class="full meter" id="meter"><i></i></div>
-        <p class="full hint" id="capHint"></p>
-        <label class="full switch"><input type="checkbox" id="capOn"> Score a drink zero if it would put me past my plan</label>
-      </div>
     </section>
 
     <section aria-labelledby="scan-h">
@@ -164,6 +155,7 @@
 
     <section aria-labelledby="log-h">
       <h2 id="log-h">Tonight's tab</h2>
+      <p class="hint" id="hadLine"></p>
       <ul class="log" id="log"></ul>
       <div class="btnrow"><button class="btn" type="button" id="newNight">Start a new night</button></div>
       <p class="hint" id="newConfirm" hidden>Tap again to close out tonight. It moves to History.</p>
@@ -235,6 +227,7 @@
 <script src="/a2.js"></script>
 <script src="/a3.js"></script>
 <script src="/a3b.js"></script>
+<script src="/loc.js"></script>
 <script src="/a4.js"></script>
 </body>
 </html>
