@@ -146,15 +146,19 @@ details.night .log{margin-top:10px}
 .rlist .rn{font-weight:600;overflow-wrap:anywhere}
 .rlist .rs{font-size:.78rem;color:var(--muted)}
 .rlist .rv{font-family:var(--mono);color:var(--accent);align-self:center}
-.prefs{display:flex;flex-direction:column;gap:12px}
-.pref{display:grid;grid-template-columns:9.5rem minmax(0,1fr) 2.4rem;gap:10px;align-items:center;font-size:.9rem}
+.prefs{display:flex;flex-direction:column;gap:16px}
+.pref{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;grid-template-areas:"name name val" "dn rng up";gap:4px 10px;align-items:center;font-size:.92rem}
+.pref label{grid-area:name;font-weight:500}.pref output{grid-area:val}.pref input{grid-area:rng}
+.nudge{width:44px;height:40px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:.85rem;cursor:pointer;line-height:1}
+.nudge[data-d^="-"]{grid-area:dn}.nudge:not([data-d^="-"]){grid-area:up}
+.nudge:active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.nudge:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pref output{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
 
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);
   padding:9px 16px;border-radius:999px;font-size:.88rem;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 32px);text-align:center;z-index:20}
 .toast.show{opacity:1}
 @media (max-width:400px){
-  .pref{grid-template-columns:7.5rem minmax(0,1fr) 2.2rem}
   .factors{grid-template-columns:repeat(2,minmax(0,1fr))}
   .verdict .num{font-size:3.4rem}
   .picker button{font-size:.75rem}

@@ -45,14 +45,20 @@ $("addRated").addEventListener("submit", e=>{
 function renderPrefs(){
   $("prefs").innerHTML = `<p class="hint">Your usual enjoyment for each type, 1–10. Used for any drink you haven't rated by name. Rating drinks you order nudges these.</p>` +
     Object.entries(GROUPS).map(([g,gn])=>`<h3 class="prefg">${gn}</h3>`+
-    Object.entries(CATS).filter(([,v])=>v.grp===g).map(([k,v])=>`<label class="pref" for="p_${k}"><span>${esc(v.name)}</span>
-    <input type="range" id="p_${k}" min="1" max="10" step="0.5" value="${S.prefs[k]}" data-pref="${k}"><output>${fmt(S.prefs[k],1)}</output></label>`).join("")).join("");
+    Object.entries(CATS).filter(([,v])=>v.grp===g).map(([k,v])=>`<div class="pref">
+      <label for="p_${k}">${esc(v.name)}</label><output id="o_${k}">${fmt(S.prefs[k],1)}</output>
+      <button type="button" class="nudge" data-nudge="${k}" data-d="-0.5" aria-label="Lower ${esc(v.name)}">▼</button>
+      <input type="range" id="p_${k}" min="1" max="10" step="0.5" value="${S.prefs[k]}" data-pref="${k}">
+      <button type="button" class="nudge" data-nudge="${k}" data-d="0.5" aria-label="Raise ${esc(v.name)}">▲</button>
+    </div>`).join("")).join("");
 }
-$("prefs").addEventListener("input", e=>{
-  const k = e.target.dataset.pref; if(!k) return;
-  S.prefs[k] = +e.target.value; e.target.nextElementSibling.textContent = fmt(S.prefs[k],1);
+function setPref(k, v){
+  S.prefs[k] = Math.min(10, Math.max(1, Math.round(v*2)/2));
+  $("p_"+k).value = S.prefs[k]; $("o_"+k).textContent = fmt(S.prefs[k],1);
   renderEnj(); renderScore(); renderForecast(); save();
-});
+}
+$("prefs").addEventListener("input", e=>{ const k = e.target.dataset.pref; if(k) setPref(k, +e.target.value) });
+$("prefs").addEventListener("click", e=>{ const b = e.target.closest("[data-nudge]"); if(b) setPref(b.dataset.nudge, S.prefs[b.dataset.nudge] + +b.dataset.d) });
 
 /* ================= history view ================= */
 function renderHistory(){
